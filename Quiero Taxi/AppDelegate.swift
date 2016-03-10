@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import GoogleMaps
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,18 +18,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
-        UINavigationBar.appearance().barTintColor = UIColor(red:0.12, green:0.47, blue:0.38, alpha:1.0)
+        [GMSServices.provideAPIKey("AIzaSyC8UUZX2HaonS8AV09n8nLu8ZRYy8dcjGo")]
+        
+        IQKeyboardManager.sharedManager().enable = true
+        
+        UINavigationBar.appearance().tintColor = UIColor.whiteColor()
+        UINavigationBar.appearance().barTintColor = UIColor(red:0.271, green:0.439, blue:0.58, alpha:1)
         UINavigationBar.appearance().titleTextAttributes = [NSForegroundColorAttributeName : UIColor.whiteColor()]
         
+        if #available(iOS 8.0, *) {
+            
+            let type: UIUserNotificationType = [UIUserNotificationType.Badge, UIUserNotificationType.Alert, UIUserNotificationType.Sound]
+            
+            let setting = UIUserNotificationSettings(forTypes: type, categories: nil)
         
+            UIApplication.sharedApplication().registerUserNotificationSettings(setting)
         
-        let type: UIUserNotificationType = [UIUserNotificationType.Badge, UIUserNotificationType.Alert, UIUserNotificationType.Sound]
+            UIApplication.sharedApplication().registerForRemoteNotifications()
+            
+        } else {
+            // Fallback on earlier versions
+        }
+
         
-        let setting = UIUserNotificationSettings(forTypes: type, categories: nil)
+        if let options = launchOptions {
+            if let notification = options[UIApplicationLaunchOptionsLocalNotificationKey] as? UILocalNotification {
+                if let userInfo = notification.userInfo {
+                    _ = userInfo["CustomField1"] as! String
+                    // do something neat here
+                }
+            }
+        }
         
-        UIApplication.sharedApplication().registerUserNotificationSettings(setting)
-        
-        UIApplication.sharedApplication().registerForRemoteNotifications()
+        FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
   
         return true
     }
@@ -37,10 +59,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
+    
+    func application(application: UIApplication,
+        openURL url: NSURL,
+        sourceApplication: String?,
+        annotation: AnyObject) -> Bool {
+            return FBSDKApplicationDelegate.sharedInstance().application(
+                application,
+                openURL: url,
+                sourceApplication: sourceApplication,
+                annotation: annotation)
+    }
+
     func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
         
-        print("el sevice token es:")
-        print(deviceToken)
+        //print("el sevice token es:")
+        //print(deviceToken)
         
         let characterSet: NSCharacterSet = NSCharacterSet( charactersInString: "<>" )
         
@@ -48,16 +82,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .stringByTrimmingCharactersInSet( characterSet )
             .stringByReplacingOccurrencesOfString( " ", withString: "" ) as String
         
-        print(aux_device)
+        //print(aux_device)
         
         let prefs:NSUserDefaults = NSUserDefaults.standardUserDefaults()
         prefs.setObject(aux_device, forKey: "DEVICETOKEN")
         
     }
     
+    @available(iOS 8.0, *)
+    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+        
+    }
+    
     func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
         
-         print(error)
+         //print(error)
         
     }
     
@@ -77,15 +116,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didReceiveLocalNotification notification: UILocalNotification) {
         
-        
         print("simon la notificacion")
         print(notification.alertBody)
         
+        if let userInfo = notification.userInfo {
+            let customField1 = userInfo["CustomField1"] as! String
+            print("didReceiveLocalNotification: \(customField1)")
+        }
         
         
-        
-        let alert = UIAlertController(title: "Quiero Taxi", message: "Su taxi esta en camino", preferredStyle: UIAlertControllerStyle.Alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+      //  let alert = UIAlertController(title: "Quiero Taxi", message: "Su taxi esta en camino", preferredStyle: UIAlertControllerStyle.Alert)
+      //  alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
         
         /*
         let activeViewCont = application.windows[0].rootViewController as! CenterViewController
@@ -101,7 +142,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         */
         
-        UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+     //   UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
         
         
     }
@@ -112,11 +153,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
-        // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    
     }
 
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        FBSDKAppEvents.activateApp()
     }
 
     func applicationWillTerminate(application: UIApplication) {

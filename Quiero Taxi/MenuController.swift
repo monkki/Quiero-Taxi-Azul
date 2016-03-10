@@ -9,13 +9,35 @@
 import UIKit
 
 class MenuController: UITableViewController {
+    
+    // DATOS USUARIO
+    var nombre = NSUserDefaults.standardUserDefaults().objectForKey("nombre") as! String
+    var apellidos = NSUserDefaults.standardUserDefaults().objectForKey("apellidos") as! String
+    var email = NSUserDefaults.standardUserDefaults().objectForKey("email") as! String
+    
+    @IBOutlet var fotoUsuario: UIImageView!
+    @IBOutlet var nombreLabel: UILabel!
+    @IBOutlet var emailLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-       self.tableView.backgroundColor = UIColor(red:0.12, green:0.47, blue:0.38, alpha:1.0)
+       self.tableView.backgroundColor = UIColor(red:0.27, green:0.44, blue:0.58, alpha:1.0)
+       self.tableView.separatorStyle = UITableViewCellSeparatorStyle.None
+        
+        //Imagen circular
+        fotoUsuario.layer.borderWidth = 2.0
+        fotoUsuario.layer.masksToBounds = false
+        fotoUsuario.layer.borderColor = UIColor.whiteColor().CGColor
+        fotoUsuario.layer.cornerRadius = fotoUsuario.frame.size.width/2
+        fotoUsuario.clipsToBounds = true
     
-    
+        if let imagenUsuario = imagenFacebook {
+            fotoUsuario.image = imagenUsuario
+        }
+        
+        nombreLabel.text = nombre + " " + apellidos
+        emailLabel.text = email
     }
 
     override func didReceiveMemoryWarning() {
@@ -33,6 +55,7 @@ class MenuController: UITableViewController {
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return 7
+        
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {

@@ -7,6 +7,7 @@
 #import "EMCCountryDelegate.h"
 #import "EMCCountryManager.h"
 #import "EMCCountryPickerController.h"
+#import "HWViewPager.h"
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <FBSDKLoginKit/FBSDKLoginKit.h>
 
